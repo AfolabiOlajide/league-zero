@@ -4,13 +4,12 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- **Phase 1 — Foundation and profile implemented; credentialed smoke test pending.**
+- **Phase 2 — Discovery and rivalry implementation in verification.**
 
 ## Current Goal
 
-- Complete the two-account manual smoke test for
-  `context/feature-specs/0-foundation-and-profile.md`, then begin username
-  discovery and rivalry requests.
+- Verify the discovery and rivalry flow with configured Clerk and MongoDB
+  accounts, then begin match submission and opponent confirmation.
 
 ## Completed
 
@@ -38,25 +37,31 @@ Update this file after every meaningful implementation change.
 - Added `.env.example` without committing real credentials.
 - Verified the branded sign-in page at desktop and 320px widths and confirmed a
   signed-out private-route request returns to the local `/sign-in` flow.
+- Implemented username discovery with bounded exact/prefix search results,
+  safe player fields, self exclusion, and existing-rivalry status.
+- Implemented canonical rivalry pair persistence, conditional lifecycle
+  transitions, database uniqueness guards, and transaction-coupled rivalry
+  notifications.
+- Added private rivalry and notification surfaces with pending, active,
+  rejected, cancelled, empty, loading, error, and unavailable states. The
+  rivalry detail provides the zero-state record and intentionally disabled
+  match-history area required before match logging is built.
 
 ## In Progress
 
-- Manual authenticated onboarding smoke test with two real Clerk accounts and
-  the configured MongoDB database. This requires user-controlled sign-in and was
-  not automated.
+- Automated verification and rendered responsive review of the discovery and
+  rivalry feature. A two-account, credentialed Clerk/MongoDB smoke test still
+  requires user-controlled accounts.
 
 ## Next Up
 
-1. Run the authenticated onboarding smoke test and confirm both unique-user and
-   duplicate-username behavior against MongoDB.
-2. Implement username discovery and rivalry requests.
-3. Implement match submission and opponent confirmation.
-4. Implement official history and derived head-to-head statistics.
+1. Run the two-account authenticated smoke test for onboarding, discovery,
+   request, acceptance, rejection, cancellation, and unauthorized access.
+2. Implement match submission and opponent confirmation.
+3. Implement official history and derived head-to-head statistics.
 
 ## Open Questions
 
-- Should a rejected/cancelled rivalry be immediately requestable again or have a
-  cooldown? Resolve before the rivalry mutation is coded.
 - What maximum score and earliest/future `playedAt` bounds should V1 accept?
   Resolve before the match schema is coded.
 
@@ -89,6 +94,10 @@ Update this file after every meaningful implementation change.
 - **2026-09-20 — Authorize at resource boundaries.** Clerk middleware attaches
   session context, while layouts, pages, Server Actions, and future handlers
   enforce access without deprecated path-matcher authorization.
+- **2026-09-20 — Rejected and cancelled rivalries can be requested again
+  immediately.** The existing pair document is returned to `pending`, keeping
+  the audit trail while avoiding a cooldown policy before product evidence
+  justifies one.
 
 ## Session Notes
 
@@ -108,3 +117,9 @@ Update this file after every meaningful implementation change.
   widths plus signed-out private-route redirection. Authenticated onboarding and
   duplicate testing remain manual because the agent did not create or access
   user accounts.
+- Discovery/rivalry verification on 2026-09-20: 15 Vitest tests passed across
+  4 files; ESLint and the production build passed. Rendered QA reconfirmed the
+  signed-out `/search` boundary redirects to sign-in and the responsive sign-in
+  surface at 320px. The authenticated two-account discovery and lifecycle
+  smoke test remains outstanding because it requires user-controlled accounts
+  and the configured MongoDB deployment.
