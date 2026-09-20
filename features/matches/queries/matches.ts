@@ -24,6 +24,36 @@ export async function getRivalryMatches(actorId: string, rivalryId: string): Pro
   return matches.map(toMatchView);
 }
 
+export type HistoryFilter = "all" | "confirmed" | "pending" | "rejected";
+export type RivalryHistory = { matches: MatchView[]; total: number; page: number; totalPages: number };
+
+const filterStatuses: Record<HistoryFilter, MatchStatus[] | undefined> = {
+  all: undefined, confirmed: ["accepted"], pending: ["pending"], rejected: ["rejected"],
+};
+
+export async function getRivalryHistory(
+  actorId: string, rivalryId: string, filter: HistoryFilter, requestedPage: number,
+): Promise<RivalryHistory> {
+  if (!Types.ObjectId.isValid(rivalryId)) return { matches: [], total: 0, page: 1, totalPages: 1 };
+  await connectToDatabase();
+  const query = { rivalryId: new Types.ObjectId(rivalryId), participantIds: new Types.ObjectId(actorId), ...(filterStatuses[filter] ? { status: { $in: filterStatuses[filter] } } : {}) };
+  const total = await MatchModel.countDocuments(query).exec();
+  const totalPages = Math.max(1, Math.ceil(total / 20));
+  const page = Math.min(Math.max(1, requestedPage), totalPages);
+  const matches = await MatchModel.find(query).select({ rivalryId: 1, participantIds: 1, scores: 1, game: 1, customGameLabel: 1, submittedBy: 1, status: 1, playedAt: 1, createdAt: 1 })
+    .sort({ playedAt: -1, createdAt: -1, _id: -1 }).skip((page - 1) * 20).limit(20).lean<MatchRecord[]>().exec();
+  return { matches: matches.map(toMatchView), total, page, totalPages };
+}
+
+export async function getAcceptedRivalryMatches(actorId: string, rivalryId: string): Promise<MatchView[]> {
+  if (!Types.ObjectId.isValid(rivalryId)) return [];
+  await connectToDatabase();
+  const matches = await MatchModel.find({ rivalryId: new Types.ObjectId(rivalryId), participantIds: new Types.ObjectId(actorId), status: "accepted" })
+    .select({ rivalryId: 1, participantIds: 1, scores: 1, game: 1, customGameLabel: 1, submittedBy: 1, status: 1, playedAt: 1, createdAt: 1 })
+    .lean<MatchRecord[]>().exec();
+  return matches.map(toMatchView);
+}
+
 export async function getMatchForParticipant(actorId: string, matchId: string): Promise<MatchView | null> {
   if (!Types.ObjectId.isValid(matchId)) return null;
   await connectToDatabase();

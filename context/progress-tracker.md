@@ -4,12 +4,12 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- **Phase 3 — Match confirmation implementation in verification.**
+- **Phase 4 — History and statistics implementation in verification.**
 
 ## Current Goal
 
-- Verify the two-account match submission and confirmation flow with configured
-  Clerk and MongoDB accounts, then implement official history and statistics.
+- Run the complete two-account V1 journey against configured Clerk and MongoDB:
+  onboarding, rivalry, result verification, and official history.
 
 ## Completed
 
@@ -51,20 +51,25 @@ Update this file after every meaningful implementation change.
   decisions, and transaction-coupled result notifications.
 - Replaced the rivalry match zero state with result logging, pending review,
   confirmed/rejected history sections, and private result-review pages.
+- Implemented a pure, deterministic head-to-head statistics calculator from
+  accepted matches only, including records, form, streaks, and score totals.
+- Added server-paginated, URL-linkable history filters and rebuilt the rivalry
+  record as an official sports composition with separate pending/rejected views.
 
 ## In Progress
 
-- Automated verification and rendered responsive review of the match feature.
-  A two-account, credentialed Clerk/MongoDB smoke test still requires
-  user-controlled accounts.
+- Automated verification and rendered responsive review of the completed V1
+  feature set. The end-to-end two-account credentialed smoke test still
+  requires user-controlled accounts.
 
 ## Next Up
 
 1. Run the two-account authenticated smoke test for onboarding, discovery,
    request, acceptance, rejection, cancellation, and unauthorized access.
-2. Run the two-account match smoke test: submission, idempotent retry, pending
-   edit, opponent acceptance/rejection, and forbidden decisions.
-3. Implement official history and derived head-to-head statistics.
+2. Run the complete two-account V1 smoke test, including idempotent retry,
+   forbidden decisions, all history filters, and mobile/desktop rendering.
+3. Resolve any findings from that credentialed end-to-end test before calling
+   V1 complete.
 
 ## Open Questions
 
@@ -106,6 +111,9 @@ Update this file after every meaningful implementation change.
   through today.** These broad V1 bounds reject malformed or accidental data
   while preserving sport flexibility until product evidence supports tighter
   rules.
+- **2026-09-20 — Accepted match ordering is played date, then creation time,
+  then ID.** This deterministic oldest-to-newest order drives form, streaks,
+  record ties, and participant-aligned statistics identically for both rivals.
 
 ## Session Notes
 
@@ -136,3 +144,9 @@ Update this file after every meaningful implementation change.
   and logging routes. The signed-out route boundary is covered by the existing
   app layout; rendered two-account submission, edit, and decision flows remain
   outstanding because they require user-controlled Clerk/MongoDB access.
+- History/statistics verification on 2026-09-20: 22 Vitest tests passed across
+  7 files; ESLint and the production build passed. Pure calculation tests cover
+  accepted-only input, participant alignment, deterministic ties, empty state,
+  and draw cases. The rendered authenticated rivalry view and full two-account
+  journey remain outstanding because they require user-controlled accounts and
+  the configured MongoDB deployment.
