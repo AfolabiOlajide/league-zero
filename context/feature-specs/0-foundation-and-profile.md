@@ -39,7 +39,9 @@ An authenticated person can enter LeagueZero, claim a unique username, and land 
 6. A completed user reaches a responsive shell with Home, Rivalries, Search, Notifications, and Profile destinations.
 7. Identity/normalization tests, lint, build, and a two-account manual smoke test pass.
 
-## Decisions Required Before Coding
+## Resolved Decisions
 
-- Resolve the exact username character and length policy from the progress tracker.
-- Select the unit/integration and E2E test tooling.
+- Usernames are 3–20 normalized lowercase letters, numbers, or underscores.
+  Leading `@` characters are removed before validation and storage.
+- Vitest covers pure validation and identity rules. Playwright will be introduced
+  when the first two-account end-to-end flow is implemented.
