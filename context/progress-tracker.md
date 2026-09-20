@@ -4,12 +4,12 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- **Phase 2 — Discovery and rivalry implementation in verification.**
+- **Phase 3 — Match confirmation implementation in verification.**
 
 ## Current Goal
 
-- Verify the discovery and rivalry flow with configured Clerk and MongoDB
-  accounts, then begin match submission and opponent confirmation.
+- Verify the two-account match submission and confirmation flow with configured
+  Clerk and MongoDB accounts, then implement official history and statistics.
 
 ## Completed
 
@@ -46,24 +46,28 @@ Update this file after every meaningful implementation change.
   rejected, cancelled, empty, loading, error, and unavailable states. The
   rivalry detail provides the zero-state record and intentionally disabled
   match-history area required before match logging is built.
+- Implemented match persistence, canonical participant-score alignment,
+  idempotent pending submission, submitter-only pending edits, opponent-only
+  decisions, and transaction-coupled result notifications.
+- Replaced the rivalry match zero state with result logging, pending review,
+  confirmed/rejected history sections, and private result-review pages.
 
 ## In Progress
 
-- Automated verification and rendered responsive review of the discovery and
-  rivalry feature. A two-account, credentialed Clerk/MongoDB smoke test still
-  requires user-controlled accounts.
+- Automated verification and rendered responsive review of the match feature.
+  A two-account, credentialed Clerk/MongoDB smoke test still requires
+  user-controlled accounts.
 
 ## Next Up
 
 1. Run the two-account authenticated smoke test for onboarding, discovery,
    request, acceptance, rejection, cancellation, and unauthorized access.
-2. Implement match submission and opponent confirmation.
+2. Run the two-account match smoke test: submission, idempotent retry, pending
+   edit, opponent acceptance/rejection, and forbidden decisions.
 3. Implement official history and derived head-to-head statistics.
 
 ## Open Questions
 
-- What maximum score and earliest/future `playedAt` bounds should V1 accept?
-  Resolve before the match schema is coded.
 
 ## Architecture Decisions
 
@@ -98,6 +102,10 @@ Update this file after every meaningful implementation change.
   immediately.** The existing pair document is returned to `pending`, keeping
   the audit trail while avoiding a cooldown policy before product evidence
   justifies one.
+- **2026-09-20 — Match inputs use 0–99 scores and dates from 2000-01-01
+  through today.** These broad V1 bounds reject malformed or accidental data
+  while preserving sport flexibility until product evidence supports tighter
+  rules.
 
 ## Session Notes
 
@@ -123,3 +131,8 @@ Update this file after every meaningful implementation change.
   surface at 320px. The authenticated two-account discovery and lifecycle
   smoke test remains outstanding because it requires user-controlled accounts
   and the configured MongoDB deployment.
+- Match-confirmation verification on 2026-09-20: 19 Vitest tests passed across
+  6 files; ESLint and the production build passed, including the match review
+  and logging routes. The signed-out route boundary is covered by the existing
+  app layout; rendered two-account submission, edit, and decision flows remain
+  outstanding because they require user-controlled Clerk/MongoDB access.

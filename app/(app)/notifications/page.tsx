@@ -28,7 +28,7 @@ export default async function NotificationsPage() {
         {notifications.map((notification) => {
           const content = notificationCopy[notification.type];
           const Icon = content.icon;
-          const href = notification.entityType === "rivalry" ? `/rivalries/${notification.entityId}` : "/rivalries";
+          const href = notification.entityType === "rivalry" ? `/rivalries/${notification.entityId}` : `/matches/${notification.entityId}`;
           return <li key={notification.id}><Link href={href} className="flex gap-3 px-1 py-5 outline-none transition-colors hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50"><div className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"><Icon aria-hidden="true" className="size-4" /></div><div className="min-w-0 flex-1"><p className="leading-6"><span className="font-semibold">{notification.actorName}</span> {content.text}</p><time className="mt-1 block text-sm text-muted-foreground" dateTime={notification.createdAt}>{new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(notification.createdAt))}</time></div></Link></li>;
         })}
       </ul>
