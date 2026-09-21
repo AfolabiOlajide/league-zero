@@ -171,3 +171,10 @@ Update this file after every meaningful implementation change.
   onboarding fix. All three Server Function modules now export runtime async
   functions only, preventing the same error in rivalry and match mutations.
   Verification: 22 Vitest tests, ESLint, and production build passed.
+- Rivalry pending match quick actions on 2026-09-21: added inline accept and reject
+  icon buttons beside the score for pending matches decidable by the opponent on the
+  rivalry detail page (`MatchQuickDecisionControls`), eliminating the need to click
+  into the match detail page to confirm or reject scores. Left side and score remain
+  clickable links to match review. Submitter pending rows and non-pending rows preserve
+  their read-only score view. Verification: 22 Vitest tests, ESLint, and Next.js production
+  build passed.
