@@ -5,14 +5,12 @@ import { startSession, Types } from "mongoose";
 
 import { alignScores, canDecideMatch } from "@/features/matches/authorization";
 import { createMatchSchema, decideMatchSchema, updateMatchSchema } from "@/features/matches/schemas/match";
+import type { MatchActionState } from "@/features/matches/types";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import { connectToDatabase } from "@/lib/db/connect";
 import { MatchModel } from "@/models/match";
 import { NotificationModel } from "@/models/notification";
 import { RivalryModel } from "@/models/rivalry";
-
-export type MatchActionState = { status: "idle" | "success" | "error"; message?: string; matchId?: string; fieldErrors?: Record<string, string[]> };
-export const initialMatchActionState: MatchActionState = { status: "idle" };
 
 function failed(message: string, fieldErrors?: Record<string, string[]>): MatchActionState { return { status: "error", message, fieldErrors }; }
 function isDuplicateKeyError(error: unknown) { return typeof error === "object" && error !== null && "code" in error && error.code === 11000; }

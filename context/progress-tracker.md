@@ -166,3 +166,8 @@ Update this file after every meaningful implementation change.
   7 files; ESLint and the Next.js production build passed. The local preview
   confirmed the signed-out private-route redirect; authenticated visual QA is
   still a user-controlled Clerk-session check.
+- Server Function export audit on 2026-09-21: moved rivalry and match action
+  state constants out of their file-level `"use server"` modules, matching the
+  onboarding fix. All three Server Function modules now export runtime async
+  functions only, preventing the same error in rivalry and match mutations.
+  Verification: 22 Vitest tests, ESLint, and production build passed.

@@ -8,18 +8,12 @@ import {
   createRivalrySchema,
   rivalryDecisionSchema,
 } from "@/features/rivalries/schemas/rivalry";
+import type { RivalryActionState } from "@/features/rivalries/types";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import { connectToDatabase } from "@/lib/db/connect";
 import { NotificationModel } from "@/models/notification";
 import { RivalryModel } from "@/models/rivalry";
 import { UserModel } from "@/models/user";
-
-export type RivalryActionState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-};
-
-export const initialRivalryActionState: RivalryActionState = { status: "idle" };
 
 function isDuplicateKeyError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === 11000;

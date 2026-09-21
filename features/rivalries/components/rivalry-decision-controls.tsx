@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { acceptRivalry, cancelRivalry, initialRivalryActionState, rejectRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { acceptRivalry, cancelRivalry, rejectRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { initialRivalryActionState } from "@/features/rivalries/action-state";
 
 export function RivalryDecisionControls({ rivalryId, isRequester }: { rivalryId: string; isRequester: boolean }) {
   const [acceptState, acceptAction, accepting] = useActionState(acceptRivalry, initialRivalryActionState);

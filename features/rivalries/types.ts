@@ -1,5 +1,10 @@
 export type RivalryStatus = "pending" | "active" | "rejected" | "cancelled";
 
+export type RivalryActionState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+};
+
 export type RivalryParticipant = {
   id: string;
   username: string;

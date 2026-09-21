@@ -6,7 +6,8 @@ import { UserRound } from "lucide-react";
 import { StatusBadge } from "@/components/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { initialRivalryActionState, requestRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { requestRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { initialRivalryActionState } from "@/features/rivalries/action-state";
 import type { SearchUserResult } from "@/features/rivalries/types";
 
 function initials(name: string) {

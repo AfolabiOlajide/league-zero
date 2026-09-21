@@ -1,7 +1,8 @@
 "use client";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { acceptMatch, initialMatchActionState, rejectMatch } from "@/features/matches/actions/match-actions";
+import { acceptMatch, rejectMatch } from "@/features/matches/actions/match-actions";
+import { initialMatchActionState } from "@/features/matches/action-state";
 
 export function MatchDecisionControls({ matchId }: { matchId: string }) {
   const [acceptState, acceptAction, accepting] = useActionState(acceptMatch, initialMatchActionState);

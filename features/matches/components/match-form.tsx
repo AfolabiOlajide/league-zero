@@ -6,7 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { initialMatchActionState, submitMatch, updatePendingMatch } from "@/features/matches/actions/match-actions";
+import { submitMatch, updatePendingMatch } from "@/features/matches/actions/match-actions";
+import { initialMatchActionState } from "@/features/matches/action-state";
 import type { MatchGame, MatchView } from "@/features/matches/types";
 
 type MatchFormProps = { rivalryId: string; actor: { id: string; displayName: string }; opponent: { displayName: string }; match?: MatchView };

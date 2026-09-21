@@ -7,7 +7,8 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { acceptRivalry, cancelRivalry, initialRivalryActionState, rejectRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { acceptRivalry, cancelRivalry, rejectRivalry } from "@/features/rivalries/actions/rivalry-actions";
+import { initialRivalryActionState } from "@/features/rivalries/action-state";
 import type { RivalrySummary } from "@/features/rivalries/types";
 import { cn } from "@/lib/utils";
 
