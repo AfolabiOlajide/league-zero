@@ -8,3 +8,12 @@ export type AppUser = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type OnboardingActionState = {
+  status: "idle" | "error";
+  message?: string;
+  fieldErrors?: {
+    displayName?: string[];
+    username?: string[];
+  };
+};

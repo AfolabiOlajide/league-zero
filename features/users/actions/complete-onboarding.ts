@@ -4,21 +4,9 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import { profileSchema } from "@/features/users/schemas/profile";
+import type { OnboardingActionState } from "@/features/users/types";
 import { connectToDatabase } from "@/lib/db/connect";
 import { UserModel } from "@/models/user";
-
-export type OnboardingActionState = {
-  status: "idle" | "error";
-  message?: string;
-  fieldErrors?: {
-    displayName?: string[];
-    username?: string[];
-  };
-};
-
-export const initialOnboardingState: OnboardingActionState = {
-  status: "idle",
-};
 
 function isDuplicateKeyError(error: unknown): boolean {
   return (

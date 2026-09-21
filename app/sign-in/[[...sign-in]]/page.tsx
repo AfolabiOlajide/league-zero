@@ -18,7 +18,10 @@ export default function SignInPage() {
         path="/sign-in"
         routing="path"
         signUpUrl="/sign-up"
-        fallbackRedirectUrl="/"
+        // New sessions always establish their LeagueZero profile before they
+        // enter the private app. Existing profiles are forwarded to /home by
+        // the onboarding page, avoiding a second auth handoff through /.
+        forceRedirectUrl="/onboarding"
       />
     </AuthShell>
   );

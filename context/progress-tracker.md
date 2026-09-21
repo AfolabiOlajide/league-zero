@@ -150,3 +150,19 @@ Update this file after every meaningful implementation change.
   and draw cases. The rendered authenticated rivalry view and full two-account
   journey remain outstanding because they require user-controlled accounts and
   the configured MongoDB deployment.
+- Authentication redirect fix on 2026-09-20: Clerk sign-in and sign-up now
+  force the first post-auth destination to `/onboarding`. Onboarding remains
+  the single profile gate and forwards an existing LeagueZero profile to
+  `/home`, avoiding the prior bounce through the root auth router.
+- Onboarding Server Function fix on 2026-09-21: moved the initial client-side
+  action state out of the file-level `"use server"` module. The action module
+  now exports only its async Server Function, as required by Next.js 16.
+- Dashboard design refresh on 2026-09-21: rebuilt the authenticated shell,
+  home dashboard, and rivalry detail around the supplied sports-record visual
+  direction. The shared shell now uses the supplied logo and deep evergreen
+  navigation; home and rivalry views render existing private rivalry and match
+  data in score-led summaries, records, and activity lists.
+- Dashboard refresh verification on 2026-09-21: 22 Vitest tests passed across
+  7 files; ESLint and the Next.js production build passed. The local preview
+  confirmed the signed-out private-route redirect; authenticated visual QA is
+  still a user-controlled Clerk-session check.

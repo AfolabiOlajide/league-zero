@@ -54,6 +54,25 @@ export async function getAcceptedRivalryMatches(actorId: string, rivalryId: stri
   return matches.map(toMatchView);
 }
 
+export async function getRecentAcceptedMatchesForUser(
+  actorId: string,
+  limit = 1000,
+): Promise<MatchView[]> {
+  await connectToDatabase();
+
+  const matches = await MatchModel.find({
+    participantIds: new Types.ObjectId(actorId),
+    status: "accepted",
+  })
+    .select({ rivalryId: 1, participantIds: 1, scores: 1, game: 1, customGameLabel: 1, submittedBy: 1, status: 1, playedAt: 1, createdAt: 1 })
+    .sort({ playedAt: -1, createdAt: -1, _id: -1 })
+    .limit(limit)
+    .lean<MatchRecord[]>()
+    .exec();
+
+  return matches.map(toMatchView);
+}
+
 export async function getMatchForParticipant(actorId: string, matchId: string): Promise<MatchView | null> {
   if (!Types.ObjectId.isValid(matchId)) return null;
   await connectToDatabase();

@@ -6,14 +6,16 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  completeOnboarding,
-  initialOnboardingState,
-} from "@/features/users/actions/complete-onboarding";
+import { completeOnboarding } from "@/features/users/actions/complete-onboarding";
+import type { OnboardingActionState } from "@/features/users/types";
 
 type OnboardingFormProps = {
   defaultDisplayName: string;
   defaultUsername: string;
+};
+
+const initialOnboardingState: OnboardingActionState = {
+  status: "idle",
 };
 
 function SubmitButton() {
