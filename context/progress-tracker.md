@@ -201,3 +201,7 @@ Update this file after every meaningful implementation change.
   four-item ring to the component's full 20-item viewport with compact rows, making
   adjacent score values visible around the selected score instead of rendering only
   the selection rail.
+- Recent encounters refresh on 2026-09-22: rebuilt rivalry match rows as a compact
+  encounter ledger with outcome markers, both player identities, scorelines, and
+  quiet game/date metadata. History and pending-result containers now use tonal
+  surfaces rather than repeated structural borders.
