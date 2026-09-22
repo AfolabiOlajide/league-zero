@@ -205,3 +205,6 @@ Update this file after every meaningful implementation change.
   encounter ledger with outcome markers, both player identities, scorelines, and
   quiet game/date metadata. History and pending-result containers now use tonal
   surfaces rather than repeated structural borders.
+- Pending encounter refinement on 2026-09-22: replaced the wide pending-verification
+  badge with a soft amber row treatment, preserving more space for both player names
+  and the scoreline while retaining the pending state for assistive technology.

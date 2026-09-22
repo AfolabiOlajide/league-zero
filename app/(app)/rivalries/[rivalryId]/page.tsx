@@ -1,4 +1,11 @@
-import { Clock3, Flame, Gamepad2, Swords, Trophy, UserRound } from "lucide-react";
+import {
+    Clock3,
+    Flame,
+    Gamepad2,
+    Swords,
+    Trophy,
+    UserRound,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,50 +13,593 @@ import { StatusBadge } from "@/components/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { MatchRow } from "@/features/matches/components/match-row";
-import { getAcceptedRivalryMatches, getRivalryHistory, type HistoryFilter } from "@/features/matches/queries/matches";
+import {
+    getAcceptedRivalryMatches,
+    getRivalryHistory,
+    type HistoryFilter,
+} from "@/features/matches/queries/matches";
 import { RivalryDecisionControls } from "@/features/rivalries/components/rivalry-decision-controls";
 import { getRivalryDetail } from "@/features/rivalries/queries/rivalries";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import { calculateRivalryStatistics } from "@/lib/domain/rivalry-statistics";
 import { cn } from "@/lib/utils";
 
-const filters: Array<{ value: HistoryFilter; label: string }> = [{ value: "all", label: "All" }, { value: "confirmed", label: "Confirmed" }, { value: "pending", label: "Pending" }, { value: "rejected", label: "Rejected" }];
-function parseFilter(value: string | string[] | undefined): HistoryFilter { return typeof value === "string" && filters.some((filter) => filter.value === value) ? value as HistoryFilter : "confirmed"; }
-function parsePage(value: string | string[] | undefined): number { const page = typeof value === "string" ? Number(value) : 1; return Number.isInteger(page) && page > 0 ? page : 1; }
-
-export default async function RivalryPage({ params, searchParams }: { params: Promise<{ rivalryId: string }>; searchParams: Promise<{ filter?: string | string[]; page?: string | string[] }> }) {
-  const [{ rivalryId }, query] = await Promise.all([params, searchParams]);
-  const user = await getCurrentAppUser(); const rivalry = user ? await getRivalryDetail(user.id, rivalryId) : null;
-  if (!user || !rivalry) notFound();
-
-  const filter = parseFilter(query.filter); const page = parsePage(query.page); const [first, second] = rivalry.participants;
-  const [acceptedMatches, history, pendingHistory] = rivalry.status === "active" ? await Promise.all([getAcceptedRivalryMatches(user.id, rivalry.id), getRivalryHistory(user.id, rivalry.id, filter, page), getRivalryHistory(user.id, rivalry.id, "pending", 1)]) : [[], { matches: [], total: 0, page: 1, totalPages: 1 }, { matches: [], total: 0, page: 1, totalPages: 1 }];
-  const statistics = calculateRivalryStatistics([first.id, second.id], acceptedMatches); const [firstStats, secondStats] = statistics.participants;
-  const isActive = rivalry.status === "active";
-  const opponent = rivalry.participants.find((participant) => participant.id !== user.id);
-  if (!opponent) notFound();
-  const encounterPlayers = { actor: { displayName: user.displayName, avatarUrl: user.avatarUrl }, opponent };
-
-  return <div className="mx-auto max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-    <header className="flex flex-wrap items-end justify-between gap-5"><div><div className="flex flex-wrap items-center gap-3"><h1 className="text-3xl font-semibold tracking-[-0.06em] sm:text-4xl">{first.displayName} <span className="text-muted-foreground">vs</span> {second.displayName}</h1><StatusBadge status={rivalry.status} /></div><p className="mt-2 text-sm text-muted-foreground">Private head-to-head record · {firstStats.matches} confirmed {firstStats.matches === 1 ? "match" : "matches"}</p></div>{isActive && <Link href={`/rivalries/${rivalry.id}/log`} className={cn(buttonVariants({ size: "lg" }), "h-11 rounded-xl px-4")}><Gamepad2 aria-hidden="true" />Log result</Link>}</header>
-
-    {isActive ? <><section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Rivalry summary"><Metric icon={Gamepad2} label="Total matches" value={firstStats.matches} /><Metric icon={Trophy} label={`${first.displayName} wins`} value={firstStats.wins} detail={`${firstStats.winRate}%`} /><Metric icon={Trophy} label={`${second.displayName} wins`} value={secondStats.wins} detail={`${secondStats.winRate}%`} tone="blue" /><Metric icon={Swords} label="Draws" value={firstStats.draws} tone="muted" /></section>
-    <section className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-sm" aria-labelledby="head-to-head-heading"><div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-7"><h2 id="head-to-head-heading" className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-muted-foreground"><span className="size-2 rounded-full bg-primary" />Head-to-head record</h2><p className="text-sm text-muted-foreground">{leaderCopy(first.displayName, firstStats.wins, second.displayName, secondStats.wins)}</p></div><div className="grid items-center gap-8 px-5 py-9 sm:grid-cols-[1fr_auto_1fr] sm:px-10">
-      <Player player={first} stats={firstStats} align="right" /><div className="order-first text-center sm:order-none"><p className="font-mono text-4xl font-semibold tracking-[-0.1em] tabular-nums sm:text-5xl">{firstStats.wins} <span className="text-muted-foreground">— {firstStats.draws} —</span> {secondStats.wins}</p><div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium"><Gamepad2 aria-hidden="true" className="size-3.5 text-primary" />Official record</div></div><Player player={second} stats={secondStats} />
-    </div><div className="border-t border-border px-5 py-5 sm:px-10"><div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 text-sm"><p className="text-right font-semibold text-primary">{firstStats.scoresFor} goals</p><p className="text-muted-foreground">Goals</p><p className="font-semibold text-chart-2">{secondStats.scoresFor} goals</p></div><div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted"><span className="bg-primary" style={{ width: `${goalShare(firstStats.scoresFor, secondStats.scoresFor)}%` }} /><span className="bg-chart-2" style={{ width: `${100 - goalShare(firstStats.scoresFor, secondStats.scoresFor)}%` }} /></div></div></section></> : rivalry.status === "pending" ? <RivalryDecisionControls rivalryId={rivalry.id} isRequester={rivalry.requestedBy === user.id} /> : <section className="mt-8 rounded-2xl border border-border bg-card p-7 text-center"><Clock3 aria-hidden="true" className="mx-auto size-6 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">This rivalry must be active before its shared record can begin.</p></section>}
-
-    {isActive && pendingHistory.total > 0 && <section className="mt-10" aria-labelledby="pending-heading"><SectionHeading id="pending-heading" title="Pending results" detail="Confirm or reject these before they affect the record." action={{ href: "?filter=pending", label: "View all" }} /><ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">{pendingHistory.matches.slice(0, 3).map((match) => <MatchRow key={match.id} match={match} actorId={user.id} players={encounterPlayers} />)}</ul></section>}
-
-    {isActive && <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]"><section aria-labelledby="history-heading"><SectionHeading id="history-heading" title="Recent encounters" detail={filter === "confirmed" ? "Official history only." : `Showing ${filter} results.`} /><nav aria-label="History filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">{filters.map((item) => <Link key={item.value} href={`?filter=${item.value}`} aria-current={filter === item.value ? "page" : undefined} className={cn("shrink-0 rounded-xl px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50", filter === item.value ? "bg-sidebar text-sidebar-accent-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{item.label}</Link>)}</nav>{history.matches.length ? <ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">{history.matches.map((match) => <MatchRow key={match.id} match={match} actorId={user.id} players={encounterPlayers} />)}</ul> : <EmptyHistory filter={filter} />}{history.totalPages > 1 && <nav className="mt-6 flex items-center justify-between" aria-label="History pages">{history.page > 1 ? <Link href={`?filter=${filter}&page=${history.page - 1}`} className="text-sm font-semibold text-primary hover:underline">Previous</Link> : <span /> }<span className="text-sm text-muted-foreground">Page {history.page} of {history.totalPages}</span>{history.page < history.totalPages ? <Link href={`?filter=${filter}&page=${history.page + 1}`} className="text-sm font-semibold text-primary hover:underline">Next</Link> : <span />}</nav>}</section>
-      <aside><section className="rounded-2xl border border-border bg-card p-5"><h2 className="flex items-center gap-2 text-lg font-semibold tracking-[-0.04em]"><Flame aria-hidden="true" className="size-5 text-primary" />Rivalry records</h2><dl className="mt-5 space-y-5"><Record label="Largest win" value={`${Math.max(firstStats.largestWin, secondStats.largestWin)} goal margin`} /><Record label="Current form" value={formLabel(firstStats, secondStats)} /><Record label="Highest scoring" value={statistics.highestScoringMatch ? `${statistics.highestScoringMatch.scores[0]} — ${statistics.highestScoringMatch.scores[1]}` : "No result yet"} /></dl></section></aside></div>}
-  </div>;
+const filters: Array<{ value: HistoryFilter; label: string }> = [
+    { value: "all", label: "All" },
+    { value: "confirmed", label: "Confirmed" },
+    { value: "pending", label: "Pending" },
+    { value: "rejected", label: "Rejected" },
+];
+function parseFilter(value: string | string[] | undefined): HistoryFilter {
+    return typeof value === "string" &&
+        filters.some((filter) => filter.value === value)
+        ? (value as HistoryFilter)
+        : "confirmed";
+}
+function parsePage(value: string | string[] | undefined): number {
+    const page = typeof value === "string" ? Number(value) : 1;
+    return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-function Metric({ icon: Icon, label, value, detail, tone = "mint" }: { icon: typeof Trophy; label: string; value: number; detail?: string; tone?: "mint" | "blue" | "muted" }) { const colors = { mint: "bg-primary/12 text-primary", blue: "bg-chart-2/10 text-chart-2", muted: "bg-muted text-muted-foreground" }; return <div className="rounded-2xl border border-border bg-card p-5 shadow-xs"><span className={cn("grid size-10 place-items-center rounded-xl", colors[tone])}><Icon aria-hidden="true" className="size-5" /></span><p className="mt-5 text-3xl font-semibold tracking-[-0.06em] tabular-nums">{value}{detail && <span className="ml-2 text-sm font-medium text-muted-foreground">{detail}</span>}</p><p className="mt-1 truncate text-sm text-muted-foreground">{label}</p></div>; }
-function Player({ player, stats, align }: { player: { displayName: string; username: string; avatarUrl?: string }; stats: ReturnType<typeof calculateRivalryStatistics>["participants"][number]; align?: "right" }) { return <div className={cn("min-w-0", align === "right" ? "text-center sm:text-right" : "text-center sm:text-left")}><Avatar className={cn("size-18 sm:size-20", align === "right" && "sm:ml-auto")} size="lg">{player.avatarUrl && <AvatarImage src={player.avatarUrl} alt="" />}<AvatarFallback><UserRound aria-hidden="true" className="size-7" /></AvatarFallback></Avatar><p className="mt-3 truncate text-xl font-semibold tracking-[-0.04em]">{player.displayName}</p><p className="mt-1 truncate text-sm text-muted-foreground">@{player.username}</p><div className={cn("mt-4 flex gap-1.5", align === "right" ? "justify-center sm:justify-end" : "justify-center sm:justify-start")}>{stats.form.length ? stats.form.map((result, index) => <span key={`${result}-${index}`} className={cn("grid size-6 place-items-center rounded-full text-[0.65rem] font-bold", result === "W" ? "bg-primary/15 text-primary" : result === "L" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground")}>{result}</span>) : <span className="text-xs text-muted-foreground">No form yet</span>}</div></div>; }
-function SectionHeading({ id, title, detail, action }: { id: string; title: string; detail?: string; action?: { href: string; label: string } }) { return <div className="flex items-start justify-between gap-4"><div><h2 id={id} className="text-xl font-semibold tracking-[-0.04em]">{title}</h2>{detail && <p className="mt-1 text-sm text-muted-foreground">{detail}</p>}</div>{action && <Link href={action.href} className="shrink-0 text-sm font-semibold text-primary hover:underline">{action.label}</Link>}</div>; }
-function Record({ label, value }: { label: string; value: string }) { return <div><dt className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</dt><dd className="mt-1 text-lg font-semibold tracking-[-0.04em]">{value}</dd></div>; }
-function EmptyHistory({ filter }: { filter: HistoryFilter }) { const copy: Record<HistoryFilter, [string, string]> = { all: ["No results recorded", "Log your first match to start the record."], confirmed: ["No confirmed matches", "Results become official when both rivals agree."], pending: ["No pending results", "Nothing is waiting for a decision."], rejected: ["No rejected results", "Rejected submissions remain here for auditability."] }; return <div className="mt-4 rounded-2xl border border-dashed border-border bg-card py-12 text-center"><Swords aria-hidden="true" className="mx-auto size-7 text-primary" /><p className="mt-3 font-semibold">{copy[filter][0]}</p><p className="mt-1 text-sm text-muted-foreground">{copy[filter][1]}</p></div>; }
-function leaderCopy(firstName: string, firstWins: number, secondName: string, secondWins: number) { return firstWins === secondWins ? "The record is level" : firstWins > secondWins ? `${firstName} leads by ${firstWins - secondWins}` : `${secondName} leads by ${secondWins - firstWins}`; }
-function goalShare(first: number, second: number) { const total = first + second; return total ? Math.round((first / total) * 100) : 50; }
-function formLabel(first: ReturnType<typeof calculateRivalryStatistics>["participants"][number], second: ReturnType<typeof calculateRivalryStatistics>["participants"][number]) { const player = first.currentStreak?.length && (!second.currentStreak?.length || first.currentStreak.length >= second.currentStreak.length) ? first : second; return player.currentStreak ? `${player.currentStreak.length} ${player.currentStreak.result} streak` : "No form yet"; }
+export default async function RivalryPage({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ rivalryId: string }>;
+    searchParams: Promise<{
+        filter?: string | string[];
+        page?: string | string[];
+    }>;
+}) {
+    const [{ rivalryId }, query] = await Promise.all([params, searchParams]);
+    const user = await getCurrentAppUser();
+    const rivalry = user ? await getRivalryDetail(user.id, rivalryId) : null;
+    if (!user || !rivalry) notFound();
+
+    const filter = parseFilter(query.filter);
+    const page = parsePage(query.page);
+    const [first, second] = rivalry.participants;
+    const [acceptedMatches, history, pendingHistory] =
+        rivalry.status === "active"
+            ? await Promise.all([
+                  getAcceptedRivalryMatches(user.id, rivalry.id),
+                  getRivalryHistory(user.id, rivalry.id, filter, page),
+                  getRivalryHistory(user.id, rivalry.id, "pending", 1),
+              ])
+            : [
+                  [],
+                  { matches: [], total: 0, page: 1, totalPages: 1 },
+                  { matches: [], total: 0, page: 1, totalPages: 1 },
+              ];
+    const statistics = calculateRivalryStatistics(
+        [first.id, second.id],
+        acceptedMatches,
+    );
+    const [firstStats, secondStats] = statistics.participants;
+    const isActive = rivalry.status === "active";
+    const opponent = rivalry.participants.find(
+        (participant) => participant.id !== user.id,
+    );
+    if (!opponent) notFound();
+    const encounterPlayers = {
+        actor: { displayName: user.displayName, avatarUrl: user.avatarUrl },
+        opponent,
+    };
+
+    return (
+        <div className="mx-auto max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
+            <header className="flex flex-wrap items-end justify-between gap-5">
+                <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <h1 className="text-3xl font-semibold tracking-[-0.06em] sm:text-4xl">
+                            {first.displayName}{" "}
+                            <span className="text-muted-foreground">vs</span>{" "}
+                            {second.displayName}
+                        </h1>
+                        <StatusBadge status={rivalry.status} />
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Private head-to-head record · {firstStats.matches}{" "}
+                        confirmed{" "}
+                        {firstStats.matches === 1 ? "match" : "matches"}
+                    </p>
+                </div>
+                {isActive && (
+                    <Link
+                        href={`/rivalries/${rivalry.id}/log`}
+                        className={cn(
+                            buttonVariants({ size: "lg" }),
+                            "h-11 rounded-xl px-4",
+                        )}
+                    >
+                        <Gamepad2 aria-hidden="true" />
+                        Log result
+                    </Link>
+                )}
+            </header>
+
+            {isActive ? (
+                <>
+                    <section
+                        className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+                        aria-label="Rivalry summary"
+                    >
+                        <Metric
+                            icon={Gamepad2}
+                            label="Total matches"
+                            value={firstStats.matches}
+                        />
+                        <Metric
+                            icon={Trophy}
+                            label={`${first.displayName} wins`}
+                            value={firstStats.wins}
+                            detail={`${firstStats.winRate}%`}
+                        />
+                        <Metric
+                            icon={Trophy}
+                            label={`${second.displayName} wins`}
+                            value={secondStats.wins}
+                            detail={`${secondStats.winRate}%`}
+                            tone="blue"
+                        />
+                        <Metric
+                            icon={Swords}
+                            label="Draws"
+                            value={firstStats.draws}
+                            tone="muted"
+                        />
+                    </section>
+                    <section
+                        className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
+                        aria-labelledby="head-to-head-heading"
+                    >
+                        <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-7">
+                            <h2
+                                id="head-to-head-heading"
+                                className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-muted-foreground"
+                            >
+                                <span className="size-2 rounded-full bg-primary" />
+                                Head-to-head record
+                            </h2>
+                            <p className="text-sm text-muted-foreground">
+                                {leaderCopy(
+                                    first.displayName,
+                                    firstStats.wins,
+                                    second.displayName,
+                                    secondStats.wins,
+                                )}
+                            </p>
+                        </div>
+                        <div className="grid items-center gap-8 px-5 py-9 sm:grid-cols-[1fr_auto_1fr] sm:px-10">
+                            <Player
+                                player={first}
+                                stats={firstStats}
+                                align="right"
+                            />
+                            <div className="order-first text-center sm:order-none">
+                                <p className="font-mono text-4xl font-semibold tracking-[-0.1em] tabular-nums sm:text-5xl">
+                                    {firstStats.wins}{" "}
+                                    <span className="text-muted-foreground">
+                                        — {firstStats.draws} —
+                                    </span>{" "}
+                                    {secondStats.wins}
+                                </p>
+                                <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium">
+                                    <Gamepad2
+                                        aria-hidden="true"
+                                        className="size-3.5 text-primary"
+                                    />
+                                    Official record
+                                </div>
+                            </div>
+                            <Player player={second} stats={secondStats} />
+                        </div>
+                        <div className="border-t border-border px-5 py-5 sm:px-10">
+                            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 text-sm">
+                                <p className="text-right font-semibold text-primary">
+                                    {firstStats.scoresFor} goals
+                                </p>
+                                <p className="text-muted-foreground">Goals</p>
+                                <p className="font-semibold text-chart-2">
+                                    {secondStats.scoresFor} goals
+                                </p>
+                            </div>
+                            <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted">
+                                <span
+                                    className="bg-primary"
+                                    style={{
+                                        width: `${goalShare(firstStats.scoresFor, secondStats.scoresFor)}%`,
+                                    }}
+                                />
+                                <span
+                                    className="bg-chart-2"
+                                    style={{
+                                        width: `${100 - goalShare(firstStats.scoresFor, secondStats.scoresFor)}%`,
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </section>
+                </>
+            ) : rivalry.status === "pending" ? (
+                <RivalryDecisionControls
+                    rivalryId={rivalry.id}
+                    isRequester={rivalry.requestedBy === user.id}
+                />
+            ) : (
+                <section className="mt-8 rounded-2xl border border-border bg-card p-7 text-center">
+                    <Clock3
+                        aria-hidden="true"
+                        className="mx-auto size-6 text-muted-foreground"
+                    />
+                    <p className="mt-3 text-sm text-muted-foreground">
+                        This rivalry must be active before its shared record can
+                        begin.
+                    </p>
+                </section>
+            )}
+
+            {isActive && pendingHistory.total > 0 && (
+                <section className="mt-10" aria-labelledby="pending-heading">
+                    <SectionHeading
+                        id="pending-heading"
+                        title="Pending results"
+                        detail="Confirm or reject these before they affect the record."
+                        action={{ href: "?filter=pending", label: "View all" }}
+                    />
+                    <ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">
+                        {pendingHistory.matches.slice(0, 3).map((match) => (
+                            <MatchRow
+                                key={match.id}
+                                match={match}
+                                actorId={user.id}
+                                players={encounterPlayers}
+                            />
+                        ))}
+                    </ul>
+                </section>
+            )}
+
+            {isActive && (
+                <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                    <section aria-labelledby="history-heading">
+                        <SectionHeading
+                            id="history-heading"
+                            title="Recent encounters"
+                            detail={
+                                filter === "confirmed"
+                                    ? "Official history only."
+                                    : `Showing ${filter} results.`
+                            }
+                        />
+                        <nav
+                            aria-label="History filters"
+                            className="mt-5 flex gap-2 overflow-x-auto pb-1"
+                        >
+                            {filters.map((item) => (
+                                <Link
+                                    key={item.value}
+                                    href={`?filter=${item.value}`}
+                                    aria-current={
+                                        filter === item.value
+                                            ? "page"
+                                            : undefined
+                                    }
+                                    className={cn(
+                                        "shrink-0 rounded-xl px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50",
+                                        filter === item.value
+                                            ? "bg-sidebar text-sidebar-accent-foreground"
+                                            : "bg-muted text-muted-foreground hover:text-foreground",
+                                    )}
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </nav>
+                        {history.matches.length ? (
+                            <ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">
+                                {history.matches.map((match) => (
+                                    <MatchRow
+                                        key={match.id}
+                                        match={match}
+                                        actorId={user.id}
+                                        players={encounterPlayers}
+                                    />
+                                ))}
+                            </ul>
+                        ) : (
+                            <EmptyHistory filter={filter} />
+                        )}
+                        {history.totalPages > 1 && (
+                            <nav
+                                className="mt-6 flex items-center justify-between"
+                                aria-label="History pages"
+                            >
+                                {history.page > 1 ? (
+                                    <Link
+                                        href={`?filter=${filter}&page=${history.page - 1}`}
+                                        className="text-sm font-semibold text-primary hover:underline"
+                                    >
+                                        Previous
+                                    </Link>
+                                ) : (
+                                    <span />
+                                )}
+                                <span className="text-sm text-muted-foreground">
+                                    Page {history.page} of {history.totalPages}
+                                </span>
+                                {history.page < history.totalPages ? (
+                                    <Link
+                                        href={`?filter=${filter}&page=${history.page + 1}`}
+                                        className="text-sm font-semibold text-primary hover:underline"
+                                    >
+                                        Next
+                                    </Link>
+                                ) : (
+                                    <span />
+                                )}
+                            </nav>
+                        )}
+                    </section>
+                    <aside>
+                        <section className="rounded-2xl border border-border bg-card p-5">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-[-0.04em]">
+                                <Flame
+                                    aria-hidden="true"
+                                    className="size-5 text-primary"
+                                />
+                                Rivalry records
+                            </h2>
+                            <dl className="mt-5 space-y-5">
+                                <Record
+                                    label="Largest win"
+                                    value={`${Math.max(firstStats.largestWin, secondStats.largestWin)} goal margin`}
+                                />
+                                <Record
+                                    label="Current form"
+                                    value={formLabel(firstStats, secondStats)}
+                                />
+                                <Record
+                                    label="Highest scoring"
+                                    value={
+                                        statistics.highestScoringMatch
+                                            ? `${statistics.highestScoringMatch.scores[0]} — ${statistics.highestScoringMatch.scores[1]}`
+                                            : "No result yet"
+                                    }
+                                />
+                            </dl>
+                        </section>
+                    </aside>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function Metric({
+    icon: Icon,
+    label,
+    value,
+    detail,
+    tone = "mint",
+}: {
+    icon: typeof Trophy;
+    label: string;
+    value: number;
+    detail?: string;
+    tone?: "mint" | "blue" | "muted";
+}) {
+    const colors = {
+        mint: "bg-primary/12 text-primary",
+        blue: "bg-chart-2/10 text-chart-2",
+        muted: "bg-muted text-muted-foreground",
+    };
+    return (
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+            <span
+                className={cn(
+                    "grid size-10 place-items-center rounded-xl",
+                    colors[tone],
+                )}
+            >
+                <Icon aria-hidden="true" className="size-5" />
+            </span>
+            <p className="mt-5 text-3xl font-semibold tracking-[-0.06em] tabular-nums">
+                {value}
+                {detail && (
+                    <span className="ml-2 text-sm font-medium text-muted-foreground">
+                        {detail}
+                    </span>
+                )}
+            </p>
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+                {label}
+            </p>
+        </div>
+    );
+}
+function Player({
+    player,
+    stats,
+    align,
+}: {
+    player: { displayName: string; username: string; avatarUrl?: string };
+    stats: ReturnType<
+        typeof calculateRivalryStatistics
+    >["participants"][number];
+    align?: "right";
+}) {
+    return (
+        <div
+            className={cn(
+                "min-w-0",
+                align === "right"
+                    ? "text-center sm:text-right"
+                    : "text-center sm:text-left",
+            )}
+        >
+            <Avatar
+                className={cn(
+                    "size-18 sm:size-20",
+                    align === "right" && "sm:ml-auto",
+                )}
+                size="lg"
+            >
+                {player.avatarUrl && (
+                    <AvatarImage src={player.avatarUrl} alt="" />
+                )}
+                <AvatarFallback>
+                    <UserRound aria-hidden="true" className="size-7" />
+                </AvatarFallback>
+            </Avatar>
+            <p className="mt-3 truncate text-xl font-semibold tracking-[-0.04em]">
+                {player.displayName}
+            </p>
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+                @{player.username}
+            </p>
+            <div
+                className={cn(
+                    "mt-4 flex gap-1.5",
+                    align === "right"
+                        ? "justify-center sm:justify-end"
+                        : "justify-center sm:justify-start",
+                )}
+            >
+                {stats.form.length ? (
+                    stats.form.map((result, index) => (
+                        <span
+                            key={`${result}-${index}`}
+                            className={cn(
+                                "grid size-6 place-items-center rounded-full text-[0.65rem] font-bold",
+                                result === "W"
+                                    ? "bg-primary/15 text-primary"
+                                    : result === "L"
+                                      ? "bg-destructive/10 text-destructive"
+                                      : "bg-muted text-muted-foreground",
+                            )}
+                        >
+                            {result}
+                        </span>
+                    ))
+                ) : (
+                    <span className="text-xs text-muted-foreground">
+                        No form yet
+                    </span>
+                )}
+            </div>
+        </div>
+    );
+}
+function SectionHeading({
+    id,
+    title,
+    detail,
+    action,
+}: {
+    id: string;
+    title: string;
+    detail?: string;
+    action?: { href: string; label: string };
+}) {
+    return (
+        <div className="flex items-start justify-between gap-4">
+            <div>
+                <h2
+                    id={id}
+                    className="text-xl font-semibold tracking-[-0.04em]"
+                >
+                    {title}
+                </h2>
+                {detail && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {detail}
+                    </p>
+                )}
+            </div>
+            {action && (
+                <Link
+                    href={action.href}
+                    className="shrink-0 text-sm font-semibold text-primary hover:underline"
+                >
+                    {action.label}
+                </Link>
+            )}
+        </div>
+    );
+}
+function Record({ label, value }: { label: string; value: string }) {
+    return (
+        <div>
+            <dt className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                {label}
+            </dt>
+            <dd className="mt-1 text-lg font-semibold tracking-[-0.04em]">
+                {value}
+            </dd>
+        </div>
+    );
+}
+function EmptyHistory({ filter }: { filter: HistoryFilter }) {
+    const copy: Record<HistoryFilter, [string, string]> = {
+        all: [
+            "No results recorded",
+            "Log your first match to start the record.",
+        ],
+        confirmed: [
+            "No confirmed matches",
+            "Results become official when both rivals agree.",
+        ],
+        pending: ["No pending results", "Nothing is waiting for a decision."],
+        rejected: [
+            "No rejected results",
+            "Rejected submissions remain here for auditability.",
+        ],
+    };
+    return (
+        <div className="mt-4 rounded-2xl border border-dashed border-border bg-card py-12 text-center">
+            <Swords
+                aria-hidden="true"
+                className="mx-auto size-7 text-primary"
+            />
+            <p className="mt-3 font-semibold">{copy[filter][0]}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+                {copy[filter][1]}
+            </p>
+        </div>
+    );
+}
+function leaderCopy(
+    firstName: string,
+    firstWins: number,
+    secondName: string,
+    secondWins: number,
+) {
+    return firstWins === secondWins
+        ? "The record is level"
+        : firstWins > secondWins
+          ? `${firstName} leads by ${firstWins - secondWins}`
+          : `${secondName} leads by ${secondWins - firstWins}`;
+}
+function goalShare(first: number, second: number) {
+    const total = first + second;
+    return total ? Math.round((first / total) * 100) : 50;
+}
+function formLabel(
+    first: ReturnType<
+        typeof calculateRivalryStatistics
+    >["participants"][number],
+    second: ReturnType<
+        typeof calculateRivalryStatistics
+    >["participants"][number],
+) {
+    const player =
+        first.currentStreak?.length &&
+        (!second.currentStreak?.length ||
+            first.currentStreak.length >= second.currentStreak.length)
+            ? first
+            : second;
+    return player.currentStreak
+        ? `${player.currentStreak.length} ${player.currentStreak.result} streak`
+        : "No form yet";
+}
