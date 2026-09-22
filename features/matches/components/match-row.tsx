@@ -64,7 +64,7 @@ export function MatchRow({
     return (
         <li
             className={cn(
-                "group flex items-center gap-2 rounded-xl px-3 py-3 transition-colors sm:gap-3",
+                "group relative rounded-xl px-3 py-3 transition-colors sm:flex sm:items-center sm:gap-3",
                 isPending
                     ? "bg-chart-4/10 hover:bg-chart-4/15"
                     : isRejected
@@ -74,7 +74,7 @@ export function MatchRow({
         >
             <Link
                 href={`/matches/${match.id}`}
-                className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="grid w-full min-w-0 grid-cols-[1.75rem_minmax(0,1fr)_1.75rem] items-center gap-3 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:flex-1 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
             >
                 {hasTonalStatus && (
                     <span className="sr-only">
@@ -104,10 +104,10 @@ export function MatchRow({
                 ) : (
                     <MatchStatusBadge status={match.status} />
                 )}
-                <div className="min-w-0">
+                <div className="flex min-w-0 justify-center sm:block">
                     {players ? (
                         <div className="flex min-w-0 items-center gap-2">
-                            <Avatar className="size-7" size="sm">
+                            <Avatar className="size-7 shrink-0" size="sm">
                                 {players.actor.avatarUrl && (
                                     <AvatarImage
                                         src={players.actor.avatarUrl}
@@ -118,13 +118,13 @@ export function MatchRow({
                                     {initials(players.actor.displayName)}
                                 </AvatarFallback>
                             </Avatar>
-                            <p className="truncate text-sm font-semibold">
+                            <p className="sr-only truncate text-sm font-semibold sm:not-sr-only">
                                 {players.actor.displayName}
                             </p>
-                            <span className="font-mono text-sm font-semibold tabular-nums tracking-[-0.06em]">
+                            <span className="shrink-0 whitespace-nowrap font-mono text-sm font-semibold tabular-nums tracking-[-0.06em]">
                                 {actorScore} — {opponentScore}
                             </span>
-                            <Avatar className="size-7" size="sm">
+                            <Avatar className="size-7 shrink-0" size="sm">
                                 {players.opponent.avatarUrl && (
                                     <AvatarImage
                                         src={players.opponent.avatarUrl}
@@ -135,7 +135,7 @@ export function MatchRow({
                                     {initials(players.opponent.displayName)}
                                 </AvatarFallback>
                             </Avatar>
-                            <p className="truncate text-sm font-semibold">
+                            <p className="sr-only truncate text-sm font-semibold sm:not-sr-only">
                                 {players.opponent.displayName}
                             </p>
                         </div>
@@ -160,7 +160,11 @@ export function MatchRow({
                     </time>
                 </div>
             </Link>
-            {canDecide && <MatchQuickDecisionControls matchId={match.id} />}
+            {canDecide && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:static sm:translate-y-0">
+                    <MatchQuickDecisionControls matchId={match.id} />
+                </div>
+            )}
         </li>
     );
 }
