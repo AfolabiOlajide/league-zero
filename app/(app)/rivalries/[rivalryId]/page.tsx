@@ -247,7 +247,7 @@ export default async function RivalryPage({
                         detail="Confirm or reject these before they affect the record."
                         action={{ href: "?filter=pending", label: "View all" }}
                     />
-                    <ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">
+                    <ul className="mt-4 space-y-1.5 rounded-3xl bg-card p-2 shadow-xs">
                         {pendingHistory.matches.slice(0, 3).map((match) => (
                             <MatchRow
                                 key={match.id}
@@ -297,7 +297,7 @@ export default async function RivalryPage({
                             ))}
                         </nav>
                         {history.matches.length ? (
-                            <ul className="mt-4 rounded-3xl bg-card p-2 shadow-xs">
+                            <ul className="mt-4 space-y-1.5 rounded-3xl bg-card p-2 shadow-xs">
                                 {history.matches.map((match) => (
                                     <MatchRow
                                         key={match.id}

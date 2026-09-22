@@ -208,3 +208,9 @@ Update this file after every meaningful implementation change.
 - Pending encounter refinement on 2026-09-22: replaced the wide pending-verification
   badge with a soft amber row treatment, preserving more space for both player names
   and the scoreline while retaining the pending state for assistive technology.
+- Rejected encounter refinement on 2026-09-22: applied the same compact status
+  treatment to rejected matches with a soft red row surface, removing the visible
+  status badge while retaining its accessible label.
+- Encounter ledger spacing on 2026-09-22: added a restrained six-pixel gutter
+  between logged results in both pending and history lists, so individual matches
+  remain visually distinct without introducing dividing borders.
