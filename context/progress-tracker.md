@@ -178,3 +178,8 @@ Update this file after every meaningful implementation change.
   clickable links to match review. Submitter pending rows and non-pending rows preserve
   their read-only score view. Verification: 22 Vitest tests, ESLint, and Next.js production
   build passed.
+- Profile design refresh on 2026-09-22: rebuilt the private profile as a player-led
+  record page with an editorial identity header, resilient avatar initials, membership
+  context, and a divider-led identity ledger. This removes the previous generic
+  boxed profile treatment while preserving the existing LeagueZero palette, responsive
+  behavior, and server-rendered identity data.
