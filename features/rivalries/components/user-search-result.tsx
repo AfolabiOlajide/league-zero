@@ -21,7 +21,7 @@ export function UserSearchResult({ user }: { user: SearchUserResult }) {
   const canRequest = !rivalry || rivalry.status === "rejected" || rivalry.status === "cancelled";
 
   return (
-    <li className="border-b border-border py-4 last:border-b-0">
+    <li className="rounded-2xl px-4 py-4 transition-colors hover:bg-muted/60">
       <div className="flex items-center gap-3 sm:gap-4">
         <Avatar className="size-11" size="lg">
           {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}

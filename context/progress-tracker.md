@@ -183,3 +183,8 @@ Update this file after every meaningful implementation change.
   context, and a divider-led identity ledger. This removes the previous generic
   boxed profile treatment while preserving the existing LeagueZero palette, responsive
   behavior, and server-rendered identity data.
+- Player search refresh on 2026-09-22: redesigned player discovery as a focused
+  registry-style search surface with borderless result rows and clear private-record
+  context. Search now runs through an authenticated Server Function from a client
+  transition and shallowly syncs `?q=` in browser history, so results update without
+  a full-document navigation while shared search URLs continue to work on refresh.
