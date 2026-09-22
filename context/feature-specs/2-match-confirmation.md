@@ -41,6 +41,7 @@ Either member of an active rivalry can log an offline result, and only the oppon
 7. Accepted results cannot be edited through UI or server entry points.
 8. Validation/authorization/concurrency tests, lint, build, and the two-account responsive flow pass.
 
-## Decision Required Before Coding
+## Resolved Decisions
 
-- Resolve score and `playedAt` bounds from the progress tracker.
+- Scores are whole, non-negative integers from 0 through 30.
+- `playedAt` accepts dates from 2000-01-01 through today.

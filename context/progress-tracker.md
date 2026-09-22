@@ -107,7 +107,7 @@ Update this file after every meaningful implementation change.
   immediately.** The existing pair document is returned to `pending`, keeping
   the audit trail while avoiding a cooldown policy before product evidence
   justifies one.
-- **2026-09-20 — Match inputs use 0–99 scores and dates from 2000-01-01
+- **2026-09-22 — Match inputs use 0–30 scores and dates from 2000-01-01
   through today.** These broad V1 bounds reject malformed or accidental data
   while preserving sport flexibility until product evidence supports tighter
   rules.
@@ -192,3 +192,12 @@ Update this file after every meaningful implementation change.
   overview with a deep evergreen context header, active-record count, and spacious
   state-aware rivalry rows. Removed the repeated list and section borders in favor of
   subtle tonal grouping, preserving all request, decision, and record navigation behavior.
+- Match logging refresh on 2026-09-22: redesigned match entry around a score-led
+  sports composition with the supplied wheel picker, selectable game tags, and the
+  project calendar popover. Reduced the maximum valid score from 99 to 30 across
+  validation and tests. Successful new submissions now rotate the idempotency key
+  and reset score controls so another match can be logged without manually refreshing.
+- Wheel picker viewport fix on 2026-09-22: expanded each score wheel from a
+  four-item ring to the component's full 20-item viewport with compact rows, making
+  adjacent score values visible around the selected score instead of rendering only
+  the selection rail.

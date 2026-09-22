@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-export const SCORE_MAXIMUM = 99;
-export const EARLIEST_PLAYED_DATE = "2000-01-01";
+import { EARLIEST_PLAYED_DATE, SCORE_MAXIMUM } from "../constants";
+
+export { EARLIEST_PLAYED_DATE, SCORE_MAXIMUM } from "../constants";
 
 const objectId = z.string().regex(/^[a-f\d]{24}$/i, "This record is no longer valid. Refresh and try again.");
 const dateValue = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose the date the match was played.")
