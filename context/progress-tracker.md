@@ -188,3 +188,7 @@ Update this file after every meaningful implementation change.
   context. Search now runs through an authenticated Server Function from a client
   transition and shallowly syncs `?q=` in browser history, so results update without
   a full-document navigation while shared search URLs continue to work on refresh.
+- Rivalries index refresh on 2026-09-22: rebuilt the rivalry list as a player-record
+  overview with a deep evergreen context header, active-record count, and spacious
+  state-aware rivalry rows. Removed the repeated list and section borders in favor of
+  subtle tonal grouping, preserving all request, decision, and record navigation behavior.
