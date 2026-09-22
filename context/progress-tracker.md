@@ -214,3 +214,9 @@ Update this file after every meaningful implementation change.
 - Encounter ledger spacing on 2026-09-22: added a restrained six-pixel gutter
   between logged results in both pending and history lists, so individual matches
   remain visually distinct without introducing dividing borders.
+- Mobile encounter readability on 2026-09-22: compact rows now show player
+  avatars and a non-wrapping scoreline below the small-screen breakpoint; names
+  return at larger widths and remain available to assistive technology on mobile.
+- Mobile encounter alignment on 2026-09-22: centered the avatar-score-avatar
+  group in a symmetrical three-column lane and positioned pending decision controls
+  independently, so every mobile row has a consistent scoreline alignment.
