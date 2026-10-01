@@ -55,6 +55,9 @@ Update this file after every meaningful implementation change.
   accepted matches only, including records, form, streaks, and score totals.
 - Added server-paginated, URL-linkable history filters and rebuilt the rivalry
   record as an official sports composition with separate pending/rejected views.
+- Added one-click bulk accept ("Accept all") for pending match results awaiting opponent
+  confirmation, with transactional atomic updates, submitter notifications, and
+  responsive rivalry detail controls.
 
 ## In Progress
 
@@ -220,3 +223,9 @@ Update this file after every meaningful implementation change.
 - Mobile encounter alignment on 2026-09-22: centered the avatar-score-avatar
   group in a symmetrical three-column lane and positioned pending decision controls
   independently, so every mobile row has a consistent scoreline alignment.
+- One-click pending match bulk acceptance on 2026-10-01: added `acceptAllPendingMatches`
+  Server Function and `AcceptAllMatchesButton` component for pending results where
+  the opponent needs to confirm. Only matches submitted by the opponent are accepted,
+  preserving Invariant #4. The button displays the exact count of decidable matches
+  and updates official history and rivalry statistics in one click. Verification: 23
+  Vitest tests, ESLint, and Next.js production build passed.

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { startSession, Types } from "mongoose";
 
 import { alignScores, canDecideMatch } from "@/features/matches/authorization";
-import { createMatchSchema, decideMatchSchema, updateMatchSchema } from "@/features/matches/schemas/match";
+import { acceptAllPendingMatchesSchema, createMatchSchema, decideMatchSchema, updateMatchSchema } from "@/features/matches/schemas/match";
 import type { MatchActionState } from "@/features/matches/types";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 import { connectToDatabase } from "@/lib/db/connect";
@@ -93,3 +93,69 @@ async function decideMatch(formData: FormData, status: "accepted" | "rejected"):
 
 export async function acceptMatch(_previous: MatchActionState, formData: FormData) { return decideMatch(formData, "accepted"); }
 export async function rejectMatch(_previous: MatchActionState, formData: FormData) { return decideMatch(formData, "rejected"); }
+
+export async function acceptAllPendingMatches(_previous: MatchActionState, formData: FormData): Promise<MatchActionState> {
+  const actor = await getCurrentAppUser();
+  if (!actor) return failed("Your session expired. Sign in again to decide these results.");
+  const parsed = acceptAllPendingMatchesSchema.safeParse({ rivalryId: formData.get("rivalryId") });
+  if (!parsed.success) return failed(parsed.error.issues[0]?.message ?? "Refresh and try again.");
+  await connectToDatabase();
+  const rivalry = await RivalryModel.findOne({
+    _id: new Types.ObjectId(parsed.data.rivalryId),
+    status: "active",
+    participantIds: new Types.ObjectId(actor.id),
+  }).select({ _id: 1, participantIds: 1 }).lean<{ _id: Types.ObjectId; participantIds: Types.ObjectId[] }>().exec();
+  if (!rivalry) return failed("Only active rivalry participants can decide results.");
+
+  const pendingMatches = await MatchModel.find({
+    rivalryId: rivalry._id,
+    participantIds: new Types.ObjectId(actor.id),
+    status: "pending",
+    submittedBy: { $ne: new Types.ObjectId(actor.id) },
+  }).select({ _id: 1, submittedBy: 1 }).lean<Array<{ _id: Types.ObjectId; submittedBy: Types.ObjectId }>>().exec();
+
+  if (pendingMatches.length === 0) {
+    return failed("There are no pending results awaiting your decision.");
+  }
+
+  const matchIds = pendingMatches.map((m) => m._id);
+  const session = await startSession();
+  try {
+    await session.withTransaction(async () => {
+      const now = new Date();
+      await MatchModel.updateMany(
+        {
+          _id: { $in: matchIds },
+          status: "pending",
+          submittedBy: { $ne: new Types.ObjectId(actor.id) },
+        },
+        { $set: { status: "accepted", acceptedAt: now } },
+        { session },
+      );
+      const notifications = pendingMatches.map((match) => ({
+        recipientId: match.submittedBy,
+        actorId: new Types.ObjectId(actor.id),
+        type: "match_accepted" as const,
+        entityType: "match" as const,
+        entityId: match._id,
+      }));
+      await NotificationModel.create(notifications, { session, ordered: true });
+    });
+  } catch (error) {
+    console.error("acceptAllPendingMatches error:", error);
+    const detail = error instanceof Error ? error.message : "We could not confirm these results. Refresh and try again.";
+    return failed(detail);
+  } finally {
+    await session.endSession();
+  }
+
+  paths(parsed.data.rivalryId);
+  for (const match of pendingMatches) {
+    revalidatePath(`/matches/${match._id.toString()}`);
+  }
+  const count = pendingMatches.length;
+  return {
+    status: "success",
+    message: `${count} pending result${count > 1 ? "s" : ""} confirmed and added to the official record.`,
+  };
+}

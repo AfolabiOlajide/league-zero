@@ -28,3 +28,4 @@ export const createMatchSchema = matchFields.extend({
 });
 export const updateMatchSchema = matchFields.extend({ matchId: objectId });
 export const decideMatchSchema = z.object({ matchId: objectId });
+export const acceptAllPendingMatchesSchema = z.object({ rivalryId: objectId });

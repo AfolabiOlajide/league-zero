@@ -12,9 +12,11 @@ import { notFound } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
+import { AcceptAllMatchesButton } from "@/features/matches/components/accept-all-matches-button";
 import { MatchRow } from "@/features/matches/components/match-row";
 import {
     getAcceptedRivalryMatches,
+    getDecidablePendingMatchesCount,
     getRivalryHistory,
     type HistoryFilter,
 } from "@/features/matches/queries/matches";
@@ -59,17 +61,19 @@ export default async function RivalryPage({
     const filter = parseFilter(query.filter);
     const page = parsePage(query.page);
     const [first, second] = rivalry.participants;
-    const [acceptedMatches, history, pendingHistory] =
+    const [acceptedMatches, history, pendingHistory, decidablePendingCount] =
         rivalry.status === "active"
             ? await Promise.all([
                   getAcceptedRivalryMatches(user.id, rivalry.id),
                   getRivalryHistory(user.id, rivalry.id, filter, page),
                   getRivalryHistory(user.id, rivalry.id, "pending", 1),
+                  getDecidablePendingMatchesCount(user.id, rivalry.id),
               ])
             : [
                   [],
                   { matches: [], total: 0, page: 1, totalPages: 1 },
                   { matches: [], total: 0, page: 1, totalPages: 1 },
+                  0,
               ];
     const statistics = calculateRivalryStatistics(
         [first.id, second.id],
@@ -246,6 +250,14 @@ export default async function RivalryPage({
                         title="Pending results"
                         detail="Confirm or reject these before they affect the record."
                         action={{ href: "?filter=pending", label: "View all" }}
+                        extraAction={
+                            decidablePendingCount > 0 ? (
+                                <AcceptAllMatchesButton
+                                    rivalryId={rivalry.id}
+                                    count={decidablePendingCount}
+                                />
+                            ) : undefined
+                        }
                     />
                     <ul className="mt-4 space-y-1.5 rounded-3xl bg-card p-2 shadow-xs">
                         {pendingHistory.matches.slice(0, 3).map((match) => (
@@ -496,14 +508,16 @@ function SectionHeading({
     title,
     detail,
     action,
+    extraAction,
 }: {
     id: string;
     title: string;
     detail?: string;
     action?: { href: string; label: string };
+    extraAction?: React.ReactNode;
 }) {
     return (
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h2
                     id={id}
@@ -517,13 +531,18 @@ function SectionHeading({
                     </p>
                 )}
             </div>
-            {action && (
-                <Link
-                    href={action.href}
-                    className="shrink-0 text-sm font-semibold text-primary hover:underline"
-                >
-                    {action.label}
-                </Link>
+            {(action || extraAction) && (
+                <div className="flex shrink-0 items-center gap-3">
+                    {extraAction}
+                    {action && (
+                        <Link
+                            href={action.href}
+                            className="text-sm font-semibold text-primary hover:underline"
+                        >
+                            {action.label}
+                        </Link>
+                    )}
+                </div>
             )}
         </div>
     );

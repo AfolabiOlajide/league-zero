@@ -81,3 +81,14 @@ export async function getMatchForParticipant(actorId: string, matchId: string): 
     .lean<MatchRecord>().exec();
   return match ? toMatchView(match) : null;
 }
+
+export async function getDecidablePendingMatchesCount(actorId: string, rivalryId: string): Promise<number> {
+  if (!Types.ObjectId.isValid(rivalryId)) return 0;
+  await connectToDatabase();
+  return MatchModel.countDocuments({
+    rivalryId: new Types.ObjectId(rivalryId),
+    participantIds: new Types.ObjectId(actorId),
+    status: "pending",
+    submittedBy: { $ne: new Types.ObjectId(actorId) },
+  }).exec();
+}
