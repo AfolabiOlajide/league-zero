@@ -17,3 +17,13 @@ export type OnboardingActionState = {
     username?: string[];
   };
 };
+
+export type ProfileActionState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+  fieldErrors?: {
+    displayName?: string[];
+    username?: string[];
+  };
+};
+

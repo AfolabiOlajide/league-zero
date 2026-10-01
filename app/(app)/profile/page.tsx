@@ -1,6 +1,7 @@
 import { AtSign, CalendarDays, UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EditProfileDialog } from "@/features/users/components/edit-profile-dialog";
 import { getCurrentAppUser } from "@/lib/auth/get-current-app-user";
 
 export default async function ProfilePage() {
@@ -95,6 +96,14 @@ export default async function ProfilePage() {
                         The details attached to every rivalry and result you
                         record.
                     </p>
+                    {user ? (
+                        <div className="mt-5">
+                            <EditProfileDialog
+                                currentDisplayName={displayName}
+                                currentUsername={user.username}
+                            />
+                        </div>
+                    ) : null}
                 </div>
 
                 <dl className="divide-y divide-border">

@@ -58,6 +58,12 @@ Update this file after every meaningful implementation change.
 - Added one-click bulk accept ("Accept all") for pending match results awaiting opponent
   confirmation, with transactional atomic updates, submitter notifications, and
   responsive rivalry detail controls.
+- Added profile update functionality: implemented `updateProfile` Server Action
+  with username uniqueness enforcement (preventing users from updating to another
+  user's existing username while allowing them to keep their own handle when updating
+  display name), MongoDB duplicate-key race safety (`E11000`), client-safe action
+  state, an accessible Base UI `EditProfileDialog` on the `/profile` page, and
+  instant multi-route cache revalidation.
 
 ## In Progress
 
@@ -229,3 +235,11 @@ Update this file after every meaningful implementation change.
   preserving Invariant #4. The button displays the exact count of decidable matches
   and updates official history and rivalry statistics in one click. Verification: 23
   Vitest tests, ESLint, and Next.js production build passed.
+- Profile display name and username update on 2026-10-01: added `updateProfile`
+  Server Action with username uniqueness enforcement (`UserModel.exists` lookup
+  excluding the acting user's `_id` and atomic `UserModel.updateOne` with `E11000`
+  race handling), client-safe `initialProfileActionState`, accessible Base UI
+  `EditProfileDialog` with inline error validation and pending states on `/profile`,
+  and `features/users/profile-update.test.ts`. Verification: 28 Vitest tests,
+  ESLint, and Next.js production build passed.
+
