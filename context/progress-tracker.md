@@ -82,7 +82,6 @@ Update this file after every meaningful implementation change.
 
 ## Open Questions
 
-
 ## Architecture Decisions
 
 - **2026-09-20 — Start with 1v1 only.** It creates a complete useful loop while
@@ -242,4 +241,3 @@ Update this file after every meaningful implementation change.
   `EditProfileDialog` with inline error validation and pending states on `/profile`,
   and `features/users/profile-update.test.ts`. Verification: 28 Vitest tests,
   ESLint, and Next.js production build passed.
-
