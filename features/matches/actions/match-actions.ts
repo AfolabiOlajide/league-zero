@@ -15,7 +15,7 @@ import { RivalryModel } from "@/models/rivalry";
 function failed(message: string, fieldErrors?: Record<string, string[]>): MatchActionState { return { status: "error", message, fieldErrors }; }
 function isDuplicateKeyError(error: unknown) { return typeof error === "object" && error !== null && "code" in error && error.code === 11000; }
 function playedAt(value: string) { return new Date(`${value}T12:00:00.000Z`); }
-function paths(rivalryId: string, matchId?: string) { revalidatePath(`/rivalries/${rivalryId}`); revalidatePath("/notifications"); if (matchId) revalidatePath(`/matches/${matchId}`); }
+function paths(rivalryId: string, matchId?: string) { revalidatePath(`/rivalries/${rivalryId}`); revalidatePath(`/rivalries/${rivalryId}/log`); revalidatePath("/notifications"); if (matchId) revalidatePath(`/matches/${matchId}`); }
 
 export async function submitMatch(_previous: MatchActionState, formData: FormData): Promise<MatchActionState> {
   const actor = await getCurrentAppUser();

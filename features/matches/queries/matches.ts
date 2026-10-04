@@ -92,3 +92,33 @@ export async function getDecidablePendingMatchesCount(actorId: string, rivalryId
     submittedBy: { $ne: new Types.ObjectId(actorId) },
   }).exec();
 }
+
+export async function getPendingMatchesAwaitingRival(
+  actorId: string,
+  rivalryId: string,
+): Promise<MatchView[]> {
+  if (!Types.ObjectId.isValid(rivalryId) || !Types.ObjectId.isValid(actorId)) return [];
+  await connectToDatabase();
+  const matches = await MatchModel.find({
+    rivalryId: new Types.ObjectId(rivalryId),
+    participantIds: new Types.ObjectId(actorId),
+    status: "pending",
+    submittedBy: new Types.ObjectId(actorId),
+  })
+    .select({
+      rivalryId: 1,
+      participantIds: 1,
+      scores: 1,
+      game: 1,
+      customGameLabel: 1,
+      submittedBy: 1,
+      status: 1,
+      playedAt: 1,
+      createdAt: 1,
+    })
+    .sort({ playedAt: -1, createdAt: -1, _id: -1 })
+    .lean<MatchRecord[]>()
+    .exec();
+
+  return matches.map(toMatchView);
+}

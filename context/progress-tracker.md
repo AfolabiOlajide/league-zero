@@ -64,6 +64,14 @@ Update this file after every meaningful implementation change.
   display name), MongoDB duplicate-key race safety (`E11000`), client-safe action
   state, an accessible Base UI `EditProfileDialog` on the `/profile` page, and
   instant multi-route cache revalidation.
+- Added pending rival results and aggregate score tracking to the match logging page:
+  implemented `getPendingMatchesAwaitingRival` server query, deterministic pure
+  domain `calculatePendingAggregate` calculation with full unit test coverage,
+  `PendingRivalResults` component displaying unconfirmed submissions with aggregate
+  scorelines, head-to-head record (W-D-L), goal distribution bar, lead differential,
+  and accessible zero-state when all logged matches are confirmed. Updated `submitMatch`,
+  `updatePendingMatch`, and `decideMatch` to revalidate the rivalry log route so the
+  pending list updates instantly after submission.
 
 ## In Progress
 
