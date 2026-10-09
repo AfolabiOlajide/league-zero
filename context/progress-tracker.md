@@ -72,6 +72,13 @@ Update this file after every meaningful implementation change.
   and accessible zero-state when all logged matches are confirmed. Updated `submitMatch`,
   `updatePendingMatch`, and `decideMatch` to revalidate the rivalry log route so the
   pending list updates instantly after submission.
+- Grouped the confirmed history tab by played day. Each displayed day now leads
+  with its participant-aligned wins and draws summary, while individual results,
+  filters, URLs, server pagination, and all persistence behavior remain
+  unchanged. The grouping is calculated only from the currently loaded page.
+  Verification: its two pure grouping tests and ESLint passed; the production
+  build is blocked in this environment because `next/font` cannot fetch Outfit
+  from Google Fonts.
 
 ## In Progress
 

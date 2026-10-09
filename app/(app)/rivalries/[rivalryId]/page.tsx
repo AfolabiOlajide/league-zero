@@ -13,6 +13,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { AcceptAllMatchesButton } from "@/features/matches/components/accept-all-matches-button";
+import { ConfirmedHistoryGroups } from "@/features/matches/components/confirmed-history-groups";
 import { MatchRow } from "@/features/matches/components/match-row";
 import {
     getAcceptedRivalryMatches,
@@ -308,7 +309,13 @@ export default async function RivalryPage({
                                 </Link>
                             ))}
                         </nav>
-                        {history.matches.length ? (
+                        {history.matches.length && filter === "confirmed" ? (
+                            <ConfirmedHistoryGroups
+                                matches={history.matches}
+                                actorId={user.id}
+                                players={encounterPlayers}
+                            />
+                        ) : history.matches.length ? (
                             <ul className="mt-4 space-y-1.5 rounded-3xl bg-card p-2 shadow-xs">
                                 {history.matches.map((match) => (
                                     <MatchRow
