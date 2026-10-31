@@ -192,3 +192,48 @@
     text-wrap: balance;
   }
 }
+
+/* Public landing motion stays local and never hides content without animation support. */
+.landing-page a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 5px;
+}
+
+.landing-text-link {
+  text-underline-offset: 5px;
+}
+
+.landing-text-link:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-entrance {
+    animation: landing-enter 700ms ease-out both;
+  }
+
+  .landing-entrance-delayed {
+    animation-delay: 140ms;
+  }
+
+  .landing-record {
+    transition: transform 300ms ease;
+  }
+
+  .landing-record:hover {
+    transform: translateY(-4px);
+  }
+
+  @supports (animation-timeline: view()) {
+    .landing-step {
+      animation: landing-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 85%;
+    }
+  }
+}
+
+@keyframes landing-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}

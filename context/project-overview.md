@@ -36,6 +36,10 @@ LeagueZero is also an intentional engineering-learning project. The first vertic
 
 ## Core User Flow
 
+Signed-out visitors first see a public landing page at `/` explaining private
+rivalries, opponent-confirmed results, and head-to-head history, with sign-up and
+sign-in links. Signed-in visitors continue to `/home` or profile onboarding.
+
 1. A person signs up or signs in through Clerk.
 2. They complete a LeagueZero profile and claim a unique `@username`.
 3. They search for another LeagueZero user by username.

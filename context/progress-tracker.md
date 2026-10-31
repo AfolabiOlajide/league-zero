@@ -13,6 +13,20 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Public landing page on 2026-10-31: signed-out `/` now introduces LeagueZero
+  with the supplied logo, a clearly labeled sample rivalry, a three-step workflow,
+  opponent-verification context, and sign-up/sign-in links. Existing authenticated
+  `/home` and `/onboarding` routing is preserved. Uses existing theme tokens,
+  responsive layouts, keyboard focus, skip navigation, and reduced-motion support.
+  Verification: `yarn lint` and `yarn build` passed; `yarn test` passed all 33
+  tests after rerunning outside the sandbox (the first run hit a temporary-file
+  access error). Reviewed the production page in-browser at 320px, 768px, and
+  desktop widths, checked dark/light themes, the workflow anchor, and keyboard
+  activation of Get started to `/sign-up`. Existing signed-in redirect branches
+  are preserved in code; authenticated routing was not re-exercised with an account.
+  Preview used `yarn start --port 3003` because the existing dev server did not
+  respond. No dependencies were added.
+
 - Initialized a Next.js 16 application with TypeScript, Tailwind CSS, shadcn/ui,
   Clerk, Mongoose, Zustand, and the initial theme tokens.
 - Defined the V1 product as a trusted 1v1 rivalry and opponent-confirmed match
